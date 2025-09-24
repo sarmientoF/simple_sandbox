@@ -116,8 +116,7 @@ class Sandbox:
         self.last_execute_id += 1
 
         # 执行代码
-        msg_id = self.kernel_client.execute(code, silent=False, store_history=True, user_expressions={},
-                                   allow_stdin=False, stop_on_error=False)
+        msg_id = self.kernel_client.execute(code)
 
         stdout = []
         stderr = []
@@ -127,7 +126,7 @@ class Sandbox:
         # 收集执行结果
         while True:
             try:
-                msg = self.kernel_client.get_iopub_msg(timeout=10)
+                msg = self.kernel_client.get_iopub_msg(timeout=3600)
                 msg_type = msg['header']['msg_type']
                 if msg['parent_header'].get('msg_id') != msg_id:
                     continue 
@@ -159,6 +158,9 @@ class Sandbox:
 
                 elif msg_type == 'execute_reply':
                     break
+                elif msg_type == 'status':
+                    if msg['content']['execution_state'] == 'idle':
+                        break
             except Exception:
                 break
 

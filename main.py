@@ -18,13 +18,8 @@ from core import (
 # 创建FastAPI应用
 app = FastAPI(title="LLM Python Code Sandbox")
 
-# 集成MCP服务，使API可以被AI模型调用
-mcp = FastApiMCP(app, name="LLM Python Code Sandbox MCP Service")
-mcp.mount()
-
-
 # 创建沙箱
-@app.post("/sandbox/create")
+@app.post("/sandbox/create",operation_id="create_sandbox")
 async def create_sandbox():
     """
     创建一个新的Python代码沙箱环境
@@ -43,7 +38,7 @@ async def create_sandbox():
 
 
 # 安装Python包
-@app.post("/sandbox/{sandbox_id}/install")
+@app.post("/sandbox/{sandbox_id}/install",operation_id="install_package")
 async def install_package(sandbox_id: str, package_name: str = Body(..., embed=True)):
     """
     在指定沙箱中安装Python包
@@ -73,7 +68,7 @@ async def install_package(sandbox_id: str, package_name: str = Body(..., embed=T
 
 
 # 执行代码
-@app.post("/sandbox/{sandbox_id}/execute")
+@app.post("/sandbox/{sandbox_id}/execute",operation_id="execute_code")
 async def execute_code(sandbox_id: str, code: str = Body(..., embed=True)):
     """
     在指定沙箱中执行Python代码
@@ -103,7 +98,7 @@ async def execute_code(sandbox_id: str, code: str = Body(..., embed=True)):
 
 
 # 上传文件
-@app.post("/sandbox/{sandbox_id}/upload")
+@app.post("/sandbox/{sandbox_id}/upload",operation_id="upload_file")
 async def upload_file(sandbox_id: str, file: UploadFile = File(...), file_path: str = None):
     """
     上传文件到指定沙箱中
@@ -134,7 +129,7 @@ async def upload_file(sandbox_id: str, file: UploadFile = File(...), file_path: 
 
 
 # 获取文件列表
-@app.get("/sandbox/{sandbox_id}/files")
+@app.get("/sandbox/{sandbox_id}/files",operation_id="list_files")
 async def list_files(sandbox_id: str):
     """
     获取指定沙箱中的文件列表
@@ -160,7 +155,7 @@ async def list_files(sandbox_id: str):
 
 
 # 下载文件
-@app.get("/sandbox/{sandbox_id}/download/{file_path:path}")
+@app.get("/sandbox/{sandbox_id}/download/{file_path:path}",operation_id="download_file")
 async def download_file(sandbox_id: str, file_path: str):
     """
     从指定沙箱中下载文件
@@ -195,7 +190,7 @@ async def download_file(sandbox_id: str, file_path: str):
 
 
 # 关闭沙箱
-@app.post("/sandbox/{sandbox_id}/close")
+@app.post("/sandbox/{sandbox_id}/close",operation_id="close_sandbox")
 async def close_sandbox(sandbox_id: str, background_tasks: BackgroundTasks):
     """
     关闭并清理指定的沙箱环境
@@ -221,7 +216,7 @@ async def close_sandbox(sandbox_id: str, background_tasks: BackgroundTasks):
 
 
 # 获取所有沙箱列表（用于调试）
-@app.get("/sandboxes")
+@app.get("/sandboxes",operation_id="list_sandboxes")
 async def list_sandboxes():
     """
     获取当前所有活跃沙箱的信息（调试用）
@@ -254,6 +249,10 @@ async def periodic_cleanup():
             print(f"清理任务执行失败: {e}")
         # 等待1小时
         await asyncio.sleep(3600)
+
+# 创建并挂载MCP服务器 - 移到所有端点定义之后
+mcp = FastApiMCP(app)
+mcp.mount_http()
 
 
 # 启动应用
