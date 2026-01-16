@@ -31,7 +31,7 @@ from .models import (
 from .client import SandboxClient
 from .client_mcp import MCPClient
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __all__ = [
     # E2B-compatible API (primary)
     "Sandbox",
