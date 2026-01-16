@@ -80,11 +80,11 @@ class Sandbox:
         if font_source_path and os.path.exists(font_source_path):
             try:
                 shutil.copy2(font_source_path, font_dest_path)
-                print(f"Font file copied to: {font_dest_path}")
+                print(f"✅ Font file copied to: {font_dest_path}")
             except Exception as e:
-                print(f"Failed to copy font file: {e}")
+                print(f"❌ Failed to copy font file: {e}")
         else:
-            print(f"Font file not found: {font_source_path}")
+            print(f"⚠️ Font file not found: {font_source_path}")
 
         # Install basic packages
         self._install_basic_packages()
@@ -111,14 +111,14 @@ class Sandbox:
 
             # If ipykernel is not installed, install it
             if check_result.returncode != 0:
-                print("ipykernel not installed, installing...")
+                print("📦 ipykernel not installed, installing...")
                 subprocess.check_call([
                     'uv', 'pip', 'install',
                     '--python', python_exe,
                     'ipykernel'
                 ])
         except Exception as e:
-            print(f"Failed to install basic packages: {e}")
+            print(f"❌ Failed to install basic packages: {e}")
 
     def execute_code(self, code: str) -> Dict:
         """Execute Python code in the sandbox."""
@@ -234,28 +234,28 @@ class Sandbox:
                     'success': True,
                     'stdout': result.stdout,
                     'stderr': result.stderr,
-                    'message': f"Successfully installed package: {package_name}"
+                    'message': f"✅ Successfully installed package: {package_name}"
                 }
             else:
                 return {
                     'success': False,
                     'stdout': result.stdout,
                     'stderr': result.stderr,
-                    'message': f"Failed to install package: {package_name}"
+                    'message': f"❌ Failed to install package: {package_name}"
                 }
         except Exception as e:
             return {
                 'success': False,
                 'stdout': '',
                 'stderr': str(e),
-                'message': f"Installation error: {str(e)}"
+                'message': f"❌ Installation error: {str(e)}"
             }
 
 
 def init_base_venv_image():
     """Initialize the base virtual environment image with common packages using uv."""
     if not os.path.exists(BASE_VENV_IMAGE_PATH):
-        print("Creating base virtual environment image...")
+        print("🔧 Creating base virtual environment image...")
 
         # Create base venv using uv
         subprocess.check_call(['uv', 'venv', BASE_VENV_IMAGE_PATH])
@@ -263,9 +263,9 @@ def init_base_venv_image():
         python_exe = os.path.join(BASE_VENV_IMAGE_PATH, 'bin', 'python')
 
         # Install common packages
-        print(f"Installing common packages: {', '.join(COMMON_PACKAGES)}")
+        print(f"📦 Installing common packages: {', '.join(COMMON_PACKAGES)}")
         for package in COMMON_PACKAGES:
-            print(f"Installing {package}...")
+            print(f"  📥 Installing {package}...")
             try:
                 subprocess.check_call([
                     'uv', 'pip', 'install',
@@ -273,12 +273,12 @@ def init_base_venv_image():
                     package
                 ])
             except Exception as e:
-                print(f"Failed to install {package}: {e}")
+                print(f"  ❌ Failed to install {package}: {e}")
                 continue
 
-        print("Base virtual environment image created successfully")
+        print("✅ Base virtual environment image created successfully")
     else:
-        print("Base virtual environment image already exists, skipping creation")
+        print("✅ Base virtual environment image already exists, skipping creation")
 
 
 def create_new_sandbox() -> str:
@@ -290,11 +290,11 @@ def create_new_sandbox() -> str:
     try:
         # Copy from base image if exists, otherwise create new venv
         if os.path.exists(BASE_VENV_IMAGE_PATH):
-            print(f"Copying virtual environment from base image to {venv_dir}")
+            print(f"📋 Copying virtual environment from base image to {venv_dir}")
             try:
                 subprocess.check_call(['cp', '-r', os.path.join(BASE_VENV_IMAGE_PATH, '.'), venv_dir])
             except subprocess.CalledProcessError:
-                print("cp command failed, falling back to shutil.copytree...")
+                print("⚠️ cp command failed, falling back to shutil.copytree...")
                 shutil.rmtree(venv_dir, ignore_errors=True)
                 shutil.copytree(BASE_VENV_IMAGE_PATH, venv_dir)
         else:

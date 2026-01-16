@@ -14,11 +14,13 @@ from .core import (
 )
 from .server import app, run_server
 from .client import SandboxClient
+from .client_mcp import MCPClient
 
 __version__ = "0.1.0"
 __all__ = [
     "Sandbox",
     "SandboxClient",
+    "MCPClient",
     "sandboxes",
     "create_new_sandbox",
     "get_sandbox",

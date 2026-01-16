@@ -82,7 +82,7 @@ async def execute_code(sandbox_id: str, code: str = Body(..., embed=True)):
     - 404: Sandbox not found
     - 500: Code execution failed
     """
-    print("Received code to execute:", code)
+    print(f"▶️ Received code to execute: {code[:100]}..." if len(code) > 100 else f"▶️ Received code to execute: {code}")
     sandbox = get_sandbox(sandbox_id)
     if not sandbox:
         raise HTTPException(status_code=404, detail="Sandbox not found")
@@ -235,7 +235,7 @@ async def periodic_cleanup():
         try:
             await cleanup_expired_sandboxes()
         except Exception as e:
-            print(f"Cleanup task failed: {e}")
+            print(f"❌ Cleanup task failed: {e}")
         await asyncio.sleep(3600)
 
 
@@ -246,7 +246,7 @@ mcp.mount_http()
 
 async def run_server_async(host: str = "0.0.0.0", port: int = 8000):
     """Run the server asynchronously."""
-    print("Initializing base virtual environment image...")
+    print("🚀 Initializing base virtual environment image...")
     init_base_venv_image()
 
     cleanup_task = asyncio.create_task(periodic_cleanup())
@@ -260,13 +260,13 @@ async def run_server_async(host: str = "0.0.0.0", port: int = 8000):
         server = uvicorn.Server(config)
         await server.serve()
     except KeyboardInterrupt:
-        print("Server is stopping...")
+        print("🛑 Server is stopping...")
     finally:
         cleanup_task.cancel()
         try:
             await cleanup_task
         except asyncio.CancelledError:
-            print("Periodic cleanup task cancelled")
+            print("🧹 Periodic cleanup task cancelled")
 
 
 def run_server(host: str = "0.0.0.0", port: int = 8000):
@@ -274,7 +274,7 @@ def run_server(host: str = "0.0.0.0", port: int = 8000):
     try:
         asyncio.run(run_server_async(host, port))
     except KeyboardInterrupt:
-        print("Server stopped")
+        print("🛑 Server stopped")
 
 
 if __name__ == "__main__":
