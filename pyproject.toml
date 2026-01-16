@@ -20,6 +20,7 @@ sandbox-server = "simple_sandbox.cli:main"
 
 [project.optional-dependencies]
 dev = ["hatch"]
+async = ["httpx"]
 
 [build-system]
 requires = ["hatchling"]

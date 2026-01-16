@@ -2156,6 +2156,9 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+async = [
+    { name = "httpx" },
+]
 dev = [
     { name = "hatch" },
 ]
@@ -2166,13 +2169,14 @@ requires-dist = [
     { name = "fastapi-mcp", specifier = ">=0.4.0" },
     { name = "fastmcp", specifier = ">=0.1.0" },
     { name = "hatch", marker = "extra == 'dev'" },
+    { name = "httpx", marker = "extra == 'async'" },
     { name = "ipykernel", specifier = ">=6.29.0" },
     { name = "jupyter-client", specifier = ">=8.6.0" },
     { name = "python-multipart", specifier = ">=0.0.9" },
     { name = "requests", specifier = ">=2.31.0" },
     { name = "uvicorn", specifier = ">=0.30.0" },
 ]
-provides-extras = ["dev"]
+provides-extras = ["async", "dev"]
 
 [[package]]
 name = "six"
