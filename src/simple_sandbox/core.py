@@ -98,27 +98,21 @@ class Sandbox:
         return ksm
 
     def _install_basic_packages(self):
-        """Install basic packages in the virtual environment using uv."""
+        """Verify basic packages are installed in the virtual environment."""
         try:
             python_exe = os.path.join(self.venv_dir, 'bin', 'python')
 
-            # Check if ipykernel is already installed
+            # Verify ipykernel is available
             check_result = subprocess.run(
                 [python_exe, '-c', 'import ipykernel'],
                 capture_output=True,
                 text=True
             )
 
-            # If ipykernel is not installed, install it
             if check_result.returncode != 0:
-                print("📦 ipykernel not installed, installing...")
-                subprocess.check_call([
-                    'uv', 'pip', 'install',
-                    '--python', python_exe,
-                    'ipykernel'
-                ])
+                print("⚠️ ipykernel not found, this may cause issues")
         except Exception as e:
-            print(f"❌ Failed to install basic packages: {e}")
+            print(f"⚠️ Failed to verify packages: {e}")
 
     def execute_code(self, code: str) -> Dict:
         """Execute Python code in the sandbox."""
@@ -288,18 +282,18 @@ def create_new_sandbox() -> str:
     venv_dir = tempfile.mkdtemp(prefix=f"sandbox_venv_{sandbox_id}_")
 
     try:
-        # Copy from base image if exists, otherwise create new venv
-        if os.path.exists(BASE_VENV_IMAGE_PATH):
-            print(f"📋 Copying virtual environment from base image to {venv_dir}")
-            try:
-                subprocess.check_call(['cp', '-r', os.path.join(BASE_VENV_IMAGE_PATH, '.'), venv_dir])
-            except subprocess.CalledProcessError:
-                print("⚠️ cp command failed, falling back to shutil.copytree...")
-                shutil.rmtree(venv_dir, ignore_errors=True)
-                shutil.copytree(BASE_VENV_IMAGE_PATH, venv_dir)
-        else:
-            # Create new venv using uv
-            subprocess.check_call(['uv', 'venv', venv_dir])
+        # Always create a fresh venv (copying breaks on macOS due to hardcoded paths)
+        print(f"🔧 Creating virtual environment for sandbox {sandbox_id[:8]}...")
+        subprocess.check_call(['uv', 'venv', venv_dir], stdout=subprocess.DEVNULL)
+
+        # Install common packages from cache (uv caches them, so this is fast)
+        python_exe = os.path.join(venv_dir, 'bin', 'python')
+        print(f"📦 Installing packages from cache...")
+        subprocess.check_call(
+            ['uv', 'pip', 'install', '--python', python_exe] + COMMON_PACKAGES,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
 
         sandbox = Sandbox(sandbox_id, work_dir, venv_dir)
         sandboxes[sandbox_id] = {
@@ -308,6 +302,7 @@ def create_new_sandbox() -> str:
             'venv_dir': venv_dir
         }
         asyncio.create_task(auto_close_sandbox(sandbox_id))
+        print(f"✅ Sandbox {sandbox_id[:8]} ready!")
         return sandbox_id
     except Exception as e:
         shutil.rmtree(work_dir, ignore_errors=True)
