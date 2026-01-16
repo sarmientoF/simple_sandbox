@@ -9,7 +9,7 @@
 
 ## 🌟 Awesome Features
 
-1. **E2B-Compatible API** 🔄: Drop-in replacement for E2B's code-interpreter SDK - migrate with minimal code changes!
+1. **E2B-Compatible API** 🔄: Drop-in replacement for E2B's code-interpreter SDK - **zero code changes required!**
 2. **Create Sandbox** 🆕: Spin up a Jupyter kernel and get a unique ID in a flash! ⚡
 3. **Execute Code** 💻: Run code and receive stdout, stderr, errors, tracebacks, and images. Supports Multi-Round Code Execution! 🎨
 4. **File Operations** 📁: Upload and download files seamlessly. 📤📥
@@ -181,26 +181,24 @@ print(df)
 
 ## 🔄 Migrating from E2B
 
-Replace your E2B imports:
+**Zero code changes required!** Keep your existing imports:
 
 ```python
-# Before (E2B)
+# This works out of the box!
 from e2b_code_interpreter import Sandbox
 
-# After (simple-sandbox)
-from simple_sandbox import Sandbox
-```
-
-The API is compatible:
-
-```python
-# Works with both E2B and simple-sandbox!
-with Sandbox.create() as sandbox:
+with Sandbox() as sandbox:
     execution = sandbox.run_code("x = 1 + 1; x")
     print(execution.text)
 ```
 
-**Key differences:**
+Or use the `simple_sandbox` import if you prefer:
+
+```python
+from simple_sandbox import Sandbox
+```
+
+**Key differences from E2B cloud:**
 - No API key required (self-hosted)
 - Server must be running locally (`sandbox-server --port 8000`)
 - Pass `base_url` to `Sandbox.create()` if not using default `http://localhost:8000`
