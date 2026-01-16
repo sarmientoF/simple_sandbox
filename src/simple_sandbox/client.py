@@ -39,7 +39,7 @@ class SandboxClient:
             print("请先创建沙箱")
             return None
 
-        response = requests.post(f"{self.base_url}/sandbox/{self.sandbox_id}/execute", data=code)
+        response = requests.post(f"{self.base_url}/sandbox/{self.sandbox_id}/execute", json={"code": code})
         if response.status_code == 200:
             result = response.json()
             print("执行结果:")
