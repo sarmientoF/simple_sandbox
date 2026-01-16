@@ -16,7 +16,7 @@ from .server import app, run_server
 from .client import SandboxClient
 from .client_mcp import MCPClient
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __all__ = [
     "Sandbox",
     "SandboxClient",
